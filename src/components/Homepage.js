@@ -7,7 +7,7 @@ import PosterMakerLanding from "./PosterMakerLanding";
 
 const API_URL = process.env.REACT_APP_API_URL
   ? process.env.REACT_APP_API_URL + "/items"
-  : "http://localhost:5000/items";
+  : "https://backend-vcd4.onrender.com/items";
 
 const Homepage = () => {
   const [userName, setUserName] = useState("");

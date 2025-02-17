@@ -35,7 +35,7 @@ function Login({ setUser }) {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
       // Request custom token from backend
-      const response = await axios.post("http://localhost:5000/generateToken", {
+      const response = await axios.post("https://backend-vcd4.onrender.com/generateToken", {
         uid: firebaseUser.uid,
       });
 

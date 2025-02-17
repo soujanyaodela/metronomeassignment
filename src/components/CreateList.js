@@ -4,7 +4,7 @@ import "./CreateList.css";
 
 const API_URL = process.env.REACT_APP_API_URL
   ? process.env.REACT_APP_API_URL + "/items"
-  : "http://localhost:5000/items";
+  : "https://backend-vcd4.onrender.com/items";
 
 const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dnwkuwyxp/image/upload";
 const CLOUDINARY_UPLOAD_PRESET = "xg6pezgc";
