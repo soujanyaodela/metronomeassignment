@@ -1,8 +1,8 @@
 const express = require("express");
 const admin = require("firebase-admin");
 const cors = require("cors");
-
 const dotenv = require("dotenv");
+
 dotenv.config();
 
 // Initialize Firebase Admin
@@ -16,22 +16,24 @@ const serviceAccount = {
   auth_uri: "https://accounts.google.com/o/oauth2/auth",
   token_uri: "https://oauth2.googleapis.com/token",
   auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-  client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40login-auth-f5729.iam.gserviceaccount.com",
+  client_x509_cert_url: process.env.FIREBASE_CLIENT_CERT_URL,
 };
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
+}
 
 // Firestore database reference
 const db = admin.firestore();
 
 const app = express();
-app.use(express.json()); // Middleware for parsing JSON
-app.use(cors()); // Enable Cross-Origin Resource Sharing
+app.use(express.json()); // Middleware for JSON parsing
+app.use(cors()); // Enable CORS
 
 // POST: Create a new item
-app.post("/items", async (req, res) => {
+app.post("/api/items", async (req, res) => {
   try {
     const { title, description, image, rating } = req.body;
 
@@ -50,7 +52,7 @@ app.post("/items", async (req, res) => {
 });
 
 // GET: Fetch all items
-app.get("/items", async (req, res) => {
+app.get("/api/items", async (req, res) => {
   try {
     const snapshot = await db.collection("items").get();
     const items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
@@ -61,7 +63,7 @@ app.get("/items", async (req, res) => {
 });
 
 // PUT: Update an existing item by ID
-app.put("/items/:id", async (req, res) => {
+app.put("/api/items/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { title, description, image, rating } = req.body;
@@ -80,7 +82,7 @@ app.put("/items/:id", async (req, res) => {
 });
 
 // DELETE: Delete an item by ID
-app.delete("/items/:id", async (req, res) => {
+app.delete("/api/items/:id", async (req, res) => {
   try {
     const { id } = req.params;
     await db.collection("items").doc(id).delete();
@@ -90,8 +92,8 @@ app.delete("/items/:id", async (req, res) => {
   }
 });
 
-// POST: Generate custom Firebase Auth token (for authentication)
-app.post("/generateToken", async (req, res) => {
+// POST: Generate custom Firebase Auth token
+app.post("/api/generateToken", async (req, res) => {
   const { uid } = req.body;
 
   if (!uid) return res.status(400).json({ error: "UID is required" });
@@ -104,8 +106,5 @@ app.post("/generateToken", async (req, res) => {
   }
 });
 
-// Start the server on the specified port
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Export the app for Vercel
+module.exports = app;
